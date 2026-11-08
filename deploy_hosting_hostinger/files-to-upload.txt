@@ -1,0 +1,50 @@
+.user.ini
+css/modern-theme.css
+laravel/app/Http/Controllers/BackupController.php
+laravel/app/Http/Controllers/BillingCycleController.php
+laravel/app/Http/Controllers/PdfController.php
+laravel/app/Http/Controllers/ThermalPrintController.php
+laravel/app/Http/Livewire/ClientMapComponent.php
+laravel/app/Http/Livewire/ClientProductComponent.php
+laravel/app/Http/Livewire/ReportPaymentComponent.php
+laravel/app/Http/Livewire/SettingComponent.php
+laravel/app/Http/Livewire/TicketComponent.php
+laravel/app/Models/Client.php
+laravel/app/Models/ClientProduct.php
+laravel/app/Models/Invoice.php
+laravel/app/Models/Ticket.php
+laravel/app/Providers/AppServiceProvider.php
+laravel/app/Services/BackupArchiveService.php
+laravel/app/Services/RestoreArchiveService.php
+laravel/config/printing.php
+laravel/config/services.php
+laravel/database/migrations/2026_08_24_010000_add_location_and_photos_to_client_product_table.php
+laravel/database/migrations/2026_08_24_030000_create_tickets_table.php
+laravel/resources/views/clients/map.blade.php
+laravel/resources/views/clients/products.blade.php
+laravel/resources/views/clients/show.blade.php
+laravel/resources/views/clients/tickets.blade.php
+laravel/resources/views/components/widget.blade.php
+laravel/resources/views/dashboard.blade.php
+laravel/resources/views/invoices/index.blade.php
+laravel/resources/views/layouts/app.blade.php
+laravel/resources/views/livewire/client-map-component.blade.php
+laravel/resources/views/livewire/client-product-component.blade.php
+laravel/resources/views/livewire/payment-component.blade.php
+laravel/resources/views/livewire/report-payment-component.blade.php
+laravel/resources/views/livewire/setting-component.blade.php
+laravel/resources/views/livewire/ticket-component.blade.php
+laravel/resources/views/navigation-menu.blade.php
+laravel/resources/views/payments/print.blade.php
+laravel/resources/views/tickets/index.blade.php
+laravel/routes/web.php
+
+Opcionales por compatibilidad PHP 8.2:
+laravel/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/HandleExceptions.php
+laravel/vendor/nesbot/carbon/src/Carbon/Traits/Creator.php
+
+Incluidos ademas en esta actualizacion:
+- facturacion mensual desde dashboard sin depender del script legado publico
+- respaldo completo desde configuracion
+- restauracion desde configuracion
+- ajuste de cache de tipo de cambio en storage/app/exchange-rates

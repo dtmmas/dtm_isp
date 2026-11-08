@@ -204,6 +204,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         ->name('dashboard.billing.generate');
     Route::get('configuracion/respaldo-completo', [BackupController::class, 'download'])
         ->name('settings.backup.download');
+    Route::post('configuracion/restaurar-respaldo', [BackupController::class, 'restore'])
+        ->name('settings.backup.restore');
 });
 
 

@@ -12,12 +12,21 @@ class BackupArchiveService
 {
     public function create(): array
     {
+        $backupDirectory = storage_path('app/backups');
+        $latestBackupPath = $this->latestBackupPath($backupDirectory);
+
+        if ($latestBackupPath) {
+            return [
+                'path' => $latestBackupPath,
+                'filename' => basename($latestBackupPath),
+            ];
+        }
+
         if (! class_exists(ZipArchive::class)) {
             throw new RuntimeException('La extension ZIP no esta disponible en este servidor.');
         }
 
         $timestamp = now()->format('Ymd_His');
-        $backupDirectory = storage_path('app/backups');
         $workspaceRoot = dirname(base_path());
         $tempDirectory = $backupDirectory.DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR.$timestamp;
         $zipPath = $backupDirectory.DIRECTORY_SEPARATOR.'dtm_isp_backup_'.$timestamp.'.zip';
@@ -48,6 +57,7 @@ class BackupArchiveService
 
         $zip->close();
         File::deleteDirectory($tempDirectory);
+        $this->pruneBackups($backupDirectory, $zipPath);
 
         return [
             'path' => $zipPath,
@@ -164,6 +174,61 @@ class BackupArchiveService
         }
     }
 
+    protected function latestBackupPath(string $backupDirectory): ?string
+    {
+        if (! File::isDirectory($backupDirectory)) {
+            return null;
+        }
+
+        $backups = collect(File::files($backupDirectory))
+            ->filter(function ($file) {
+                return $this->startsWith($file->getFilename(), 'dtm_isp_backup_')
+                    && $this->endsWith($file->getFilename(), '.zip');
+            })
+            ->sortByDesc(function ($file) {
+                return $file->getMTime();
+            })
+            ->values();
+
+        return optional($backups->first())->getPathname();
+    }
+
+    protected function pruneBackups(string $backupDirectory, string $keepPath): void
+    {
+        if (! File::isDirectory($backupDirectory)) {
+            return;
+        }
+
+        $backups = collect(File::files($backupDirectory))
+            ->filter(function ($file) use ($keepPath) {
+                return $file->getPathname() !== $keepPath
+                    && $this->startsWith($file->getFilename(), 'dtm_isp_backup_')
+                    && $this->endsWith($file->getFilename(), '.zip');
+            })
+            ->sortByDesc(function ($file) {
+                return $file->getMTime();
+            })
+            ->slice(2);
+
+        foreach ($backups as $file) {
+            File::delete($file->getPathname());
+        }
+    }
+
+    protected function startsWith(string $value, string $prefix): bool
+    {
+        return substr($value, 0, strlen($prefix)) === $prefix;
+    }
+
+    protected function endsWith(string $value, string $suffix): bool
+    {
+        if ($suffix === '') {
+            return true;
+        }
+
+        return substr($value, -strlen($suffix)) === $suffix;
+    }
+
     protected function laravelFiles(string $laravelRoot): array
     {
         return [
@@ -181,6 +246,8 @@ class BackupArchiveService
             ['source' => $laravelRoot.DIRECTORY_SEPARATOR.'package.json', 'target' => 'laravel/package.json'],
             ['source' => $laravelRoot.DIRECTORY_SEPARATOR.'phpunit.xml', 'target' => 'laravel/phpunit.xml'],
             ['source' => $laravelRoot.DIRECTORY_SEPARATOR.'server.php', 'target' => 'laravel/server.php'],
+            ['source' => $laravelRoot.DIRECTORY_SEPARATOR.'storage'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'logo', 'target' => 'laravel/storage/app/public/logo'],
+            ['source' => $laravelRoot.DIRECTORY_SEPARATOR.'storage'.DIRECTORY_SEPARATOR.'app'.DIRECTORY_SEPARATOR.'public'.DIRECTORY_SEPARATOR.'payment', 'target' => 'laravel/storage/app/public/payment'],
             ['source' => $laravelRoot.DIRECTORY_SEPARATOR.'tailwind.config.js', 'target' => 'laravel/tailwind.config.js'],
             ['source' => $laravelRoot.DIRECTORY_SEPARATOR.'webpack.mix.js', 'target' => 'laravel/webpack.mix.js'],
         ];
@@ -215,6 +282,10 @@ class BackupArchiveService
             '- database/dtm_isp.sql: respaldo SQL completo de la base de datos',
             '- laravel/: codigo fuente, configuracion, migraciones y almacenamiento util',
             '- public-root/: archivos publicos y assets necesarios del proyecto',
+            '- laravel/storage/app/public/logo y payment: archivos operativos necesarios',
+            '',
+            'No incluido para mantener un respaldo descargable desde la web:',
+            '- laravel/storage/app/public/payments (adjuntos historicos pesados)',
             '',
             'Restauracion sugerida:',
             '1. Extraer el ZIP en una carpeta nueva.',
