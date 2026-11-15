@@ -1,0 +1,25 @@
+GUIA DESARROLLO.TXT
+
+composer create-project laravel/laravel baseUserRole
+composer require laravel/jetstream
+php artisan jetstream:install livewire
+npm install && npm run dev
+
+git init
+git add .
+git commit -m "Commit Inicial"
+
+
+//laravel permisos
+https://spatie.be/docs/laravel-permission/v4/installation-laravel
+
+composer require spatie/laravel-permission
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+php artisan migrate
+
+composer require laravelcollective/html
+composer require barryvdh/laravel-dompdf
+
+//paypalhttps://developer.paypal.com/docs/business/javascript-sdk/javascript-sdk-reference/
+https://developer.paypal.com/docs/business/checkout/reference/style-guide/#customize-the-payment-buttons
+https://developer.paypal.com/docs/api/orders/v2/#definition-purchase_unit

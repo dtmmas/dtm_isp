@@ -1,0 +1,11 @@
+[Unit]
+Description=Run MySQL watchdog periodically
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+Unit=mysql-backend-watchdog.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target
