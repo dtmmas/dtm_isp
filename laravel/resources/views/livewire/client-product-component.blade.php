@@ -1,5 +1,86 @@
 <div> 
     <style>
+        .plan-list-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .plan-search-shell {
+            flex: 1 1 20rem;
+            max-width: 30rem;
+        }
+
+        .plan-search-shell .input-group {
+            background: #ffffff;
+            border: 1px solid #dbe2f0;
+            border-radius: .9rem;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, .05);
+        }
+
+        .plan-search-shell .form-control {
+            border: none;
+            padding-top: .8rem;
+            padding-bottom: .8rem;
+        }
+
+        .plan-search-shell .input-group-text {
+            background: #ffffff;
+            border: none;
+            color: #64748b;
+            padding-left: .85rem;
+            padding-right: .95rem;
+        }
+
+        .plan-filter-shell {
+            flex: 0 1 15rem;
+        }
+
+        .plan-filter-shell .form-control {
+            border-radius: .9rem;
+            border: 1px solid #dbe2f0;
+            min-height: 48px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, .05);
+        }
+
+        .plan-toolbar-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: .65rem;
+            flex-wrap: wrap;
+        }
+
+        .plan-toolbar-actions .btn {
+            border-radius: .7rem;
+            padding: .68rem 1rem;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, .04);
+            white-space: nowrap;
+            font-weight: 600;
+            border: 1px solid rgba(191, 219, 254, 0.65);
+        }
+
+        .plan-toolbar-actions .btn i {
+            margin-right: .45rem;
+        }
+
+        .plan-toolbar-btn-create {
+            background: #dbeafe;
+            border-color: rgba(191, 219, 254, 0.65);
+            color: #1d4ed8;
+        }
+
+        .plan-toolbar-btn-create:hover {
+            background: #bfdbfe;
+            color: #1e40af;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, .12);
+        }
+
         .plan-action-inline {
             display: flex;
             align-items: center;
@@ -11,13 +92,19 @@
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            padding: 0.42rem 0.82rem;
-            border-radius: 999px;
+            padding: 0.46rem 0.82rem;
+            border-radius: .7rem;
             font-size: 0.8rem;
             font-weight: 600;
             text-decoration: none;
-            border: 1px solid transparent;
+            border: 1px solid rgba(203, 213, 225, 0.45);
             transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .plan-action-chip i {
+            width: 1rem;
+            text-align: center;
         }
 
         .plan-action-chip-info {
@@ -53,6 +140,27 @@
             color: #1e40af;
         }
 
+        .plan-action-chip:hover {
+            text-decoration: none;
+            transform: translateY(-1px);
+        }
+
+        .plan-action-more {
+            width: 2.35rem;
+            height: 2.35rem;
+            padding: 0;
+            border-radius: .7rem;
+            border: 1px solid rgba(203, 213, 225, 0.45);
+            background: #f8fafc;
+            color: #475569;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+        }
+
+        .plan-action-more:hover {
+            background: #eef2f7;
+            color: #0f172a;
+        }
+
         .plan-action-menu {
             min-width: 13rem;
             border-radius: 0.95rem;
@@ -75,25 +183,369 @@
         }
 
         .plan-action-toolbar .btn {
+            border-radius: .7rem;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+            font-weight: 600;
+            border: 1px solid rgba(203, 213, 225, 0.4);
+        }
+
+        .plan-action-toolbar .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+        }
+
+        .plan-action-toolbar .btn-plan-add-invoice {
+            background: #dcfce7;
+            border-color: rgba(134, 239, 172, 0.55);
+            color: #15803d;
+        }
+
+        .plan-action-toolbar .btn-plan-add-payments {
+            background: #d9f99d;
+            border-color: rgba(132, 204, 22, 0.45);
+            color: #3f6212;
+        }
+
+        .plan-action-toolbar .btn-plan-view-contracted {
+            background: #e0f2fe;
+            border-color: rgba(125, 211, 252, 0.55);
+            color: #075985;
+        }
+
+        .plan-action-toolbar .btn-plan-tickets {
+            background: #fce7f3;
+            border-color: rgba(244, 114, 182, 0.38);
+            color: #be185d;
+        }
+
+        .plan-action-toolbar .btn-plan-edit {
+            background: #dbeafe;
+            border-color: rgba(191, 219, 254, 0.65);
+            color: #1d4ed8;
+        }
+
+        .plan-action-toolbar .btn-plan-suspend {
+            background: #fef3c7;
+            border-color: rgba(252, 211, 77, 0.55);
+            color: #b45309;
+        }
+
+        .plan-action-toolbar .btn-plan-activate {
+            background: #dcfce7;
+            border-color: rgba(134, 239, 172, 0.55);
+            color: #15803d;
+        }
+
+        .plan-action-toolbar .btn-plan-cancel {
+            background: #f1f5f9;
+            border-color: rgba(203, 213, 225, 0.55);
+            color: #475569;
+        }
+
+        .plan-action-toolbar .btn-plan-delete {
+            background: #fee2e2;
+            border-color: rgba(254, 202, 202, 0.65);
+            color: #b91c1c;
+        }
+
+        .plan-detail-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+            overflow: hidden;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            height: 100%;
+        }
+
+        .plan-detail-card .card-body {
+            padding: 1.2rem 1.25rem;
+        }
+
+        .plan-detail-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .plan-detail-card-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .plan-detail-card-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.7rem;
             border-radius: 999px;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            font-size: 0.72rem;
+            font-weight: 700;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .plan-detail-list {
+            display: grid;
+            gap: 0.7rem;
+        }
+
+        .plan-detail-item {
+            display: grid;
+            grid-template-columns: minmax(8rem, 11rem) minmax(0, 1fr);
+            gap: 0.85rem;
+            padding: 0.7rem 0;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .plan-detail-item:first-child {
+            padding-top: 0;
+            border-top: none;
+        }
+
+        .plan-detail-label {
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .plan-detail-value {
+            font-size: 0.92rem;
+            color: #0f172a;
+            line-height: 1.35;
+            min-width: 0;
+        }
+
+        .plan-detail-value-muted {
+            color: #64748b;
+        }
+
+        .plan-photo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+
+        .plan-photo-grid img {
+            width: 88px;
+            height: 88px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #dbe2f0;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+        }
+
+        @media (max-width: 991.98px) {
+            .plan-action-toolbar {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: .5rem;
+                align-items: stretch;
+            }
+
+            .plan-action-toolbar .btn {
+                width: 100%;
+                min-height: 2.55rem;
+                padding: .45rem .65rem;
+                font-size: .76rem;
+                line-height: 1.15;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: .35rem;
+                text-align: center;
+                box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            }
+
+            .plan-action-toolbar .btn i {
+                font-size: .82rem;
+                margin-right: 0;
+                flex-shrink: 0;
+            }
+
+            .plan-detail-card {
+                border-radius: .85rem;
+                box-shadow: 0 10px 26px rgba(15, 23, 42, 0.07);
+            }
+
+            .plan-detail-card .card-body {
+                padding: .95rem 1rem;
+            }
+
+            .plan-detail-card-header {
+                margin-bottom: .7rem;
+                gap: .55rem;
+            }
+
+            .plan-detail-card-title {
+                font-size: .92rem;
+                line-height: 1.2;
+            }
+
+            .plan-detail-card-badge {
+                padding: .28rem .58rem;
+                font-size: .66rem;
+                gap: .28rem;
+            }
+
+            .plan-detail-list {
+                gap: .4rem;
+            }
+
+            .plan-detail-item {
+                grid-template-columns: minmax(6.5rem, 8.25rem) minmax(0, 1fr);
+                gap: .55rem;
+                padding: .45rem 0;
+            }
+
+            .plan-detail-label {
+                font-size: .67rem;
+                letter-spacing: .03em;
+            }
+
+            .plan-detail-value {
+                font-size: .82rem;
+                line-height: 1.22;
+            }
+
+            .plan-photo-grid {
+                gap: .45rem;
+            }
+
+            .plan-photo-grid img {
+                width: 70px;
+                height: 70px;
+                border-radius: 10px;
+            }
+
+            .plan-nav-actions {
+                margin-top: .45rem !important;
+                gap: .4rem;
+            }
+
+            .plan-nav-btn {
+                padding: .4rem .6rem;
+                font-size: .74rem;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .plan-list-toolbar {
+                gap: .75rem;
+            }
+
+            .plan-search-shell,
+            .plan-filter-shell,
+            .plan-toolbar-actions {
+                flex-basis: 100%;
+                max-width: 100%;
+            }
+
+            .plan-toolbar-actions {
+                justify-content: stretch;
+            }
+
+            .plan-toolbar-actions .btn {
+                width: 100%;
+            }
+
+            .plan-detail-card .card-body {
+                padding: .85rem .9rem;
+            }
+
+            .plan-detail-card-header {
+                align-items: flex-start;
+                flex-direction: column;
+                margin-bottom: .6rem;
+            }
+
+            .plan-detail-item {
+                grid-template-columns: 1fr;
+                gap: 0.2rem;
+                padding: 0.42rem 0;
+            }
+
+            .plan-detail-card-title {
+                font-size: .88rem;
+            }
+
+            .plan-detail-card-badge {
+                font-size: .64rem;
+                padding: .24rem .52rem;
+            }
+
+            .plan-detail-label {
+                font-size: .64rem;
+            }
+
+            .plan-detail-value {
+                font-size: .79rem;
+                line-height: 1.2;
+            }
+
+            .plan-photo-grid img {
+                width: 64px;
+                height: 64px;
+            }
+
+            .plan-action-toolbar {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: .42rem;
+            }
+
+            .plan-action-toolbar .btn {
+                width: 100%;
+                min-height: 2.35rem;
+                padding: .4rem .55rem;
+                font-size: .72rem;
+                border-radius: .85rem;
+                box-shadow: 0 6px 16px rgba(15, 23, 42, 0.05);
+            }
+        }
+
+        @media (max-width: 479.98px) {
+            .plan-action-toolbar {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: .38rem;
+            }
+
+            .plan-action-toolbar .btn {
+                min-height: 2.25rem;
+                padding: .38rem .48rem;
+                font-size: .69rem;
+                line-height: 1.1;
+            }
+
+            .plan-action-toolbar .btn i {
+                font-size: .78rem;
+            }
         }
     </style>
     @if (!$modeResume) 
         <div class="tabla"> 
-            <div class="row">
-                <div class=" mb-3 col-xs-12 col-sm-5">
+            <div class="plan-list-toolbar">
+                <div class="plan-search-shell">
                     <div class="input-group">
                         <input wire:model="search" type="text" class="form-control" placeholder="Buscar por dirección o código">
                         <span class="input-group-text"><i class="fa fa-search" aria-hidden="true"></i></span>
                     </div>
                 </div>
-                <div class="mb-3 col-xs-12 col-sm-3">
+
+                <div class="plan-filter-shell">
                     {!! Form::select('filter_zone_id', $zones, null, ['wire:model' => 'filter_zone_id', 'class' => 'form-control', 'placeholder' => 'Todas las zonas']) !!}
                 </div>
-                <div class=" mb-3 col-xs-12 col-sm-4">
+
+                <div class="plan-toolbar-actions">
                     @can('clients.edit')
-                    <button wire:click="resetInputFields" type="button" class="btn btn-primary btnCrearModal float-end" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <button wire:click="resetInputFields" type="button" class="btn plan-toolbar-btn-create btnCrearModal" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        <i class="fas fa-plus-circle" aria-hidden="true"></i>
                         Contratar Plan
                     </button>
                     @endcan
@@ -141,7 +593,7 @@
                                         @endif
                                         @endcan
                                         @can('clients.edit')
-                                        <button style="opacity: .9" type="button" class="btn btn-info btn-sm btn-secondary dropdown-toggle dropdown-toggle-split rounded-pill px-3" data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent">
+                                        <button type="button" class="btn btn-sm dropdown-toggle plan-action-more" data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent" title="Más acciones" aria-label="Más acciones">
                                             <span class="sr-only">Toggle Dropdown</span>
                                         </button>
                                         @endcan
@@ -181,134 +633,100 @@
         <div class="row resume">
             <div class="">
                 <div class="plan-action-toolbar">
-                @can('payments.advancement')
-                @if ($pivot->status!='-1')
-                    <button type="button"  data-bs-toggle="modal" data-bs-target="#modalAdvancement" class="btn btn-sm btn-warning" > <i class="fas fa-plus" aria-hidden="true"></i> Agregar pagos</button>
-                @endif
-                @endcan
-
                 @can('invoices.create')
                 @if ($pivot->status!='-1')
-                    <button type="button"  data-bs-toggle="modal" data-bs-target="#modalCreateInvoice" class="btn btn-sm btn-success" > <i class="fas fa-plus" aria-hidden="true"></i> Agregar factura</button>
+                    <button type="button"  data-bs-toggle="modal" data-bs-target="#modalCreateInvoice" class="btn btn-sm btn-plan-add-invoice" > <i class="fas fa-plus" aria-hidden="true"></i> Agregar factura</button>
+                @endif
+                @endcan
+                @can('payments.advancement')
+                @if ($pivot->status!='-1')
+                    <button type="button"  data-bs-toggle="modal" data-bs-target="#modalAdvancement" class="btn btn-sm btn-plan-add-payments" > <i class="fas fa-plus" aria-hidden="true"></i> Agregar pagos</button>
                 @endif
                 @endcan
                 @can('clients.index')
-                    <a wire:click="updateMode(false)" class="btn btn-sm btn-info" href="#!"> <i class="fas fa-undo" aria-hidden="true"></i> Ver planes contratados</a>
+                    <a wire:click="updateMode(false)" class="btn btn-sm btn-plan-view-contracted" href="#!"> <i class="fas fa-undo" aria-hidden="true"></i> Ver planes contratados</a>
                 @endcan
-                <a class="btn btn-sm btn-secondary" href="{{ route('clients.tickets', ['client' => $client->id, 'client_product_id' => $cp]) }}">
-                    <i class="fas fa-ticket-alt" aria-hidden="true"></i> Tickets del plan
-                </a>
                 @can('clients.edit')
                 @if ($pivot->status!='-1')
-                    <a wire:click="edit({{$cp}})" data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn btn-sm btn-primary" href="#!">
+                    <a wire:click="edit({{$cp}})" data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn btn-sm btn-plan-edit" href="#!">
                         <i class="fas fa-edit" aria-hidden="true"></i> Editar plan
                     </a>
                 @endif
                 @endcan
+                <a class="btn btn-sm btn-plan-tickets" href="{{ route('clients.tickets', ['client' => $client->id, 'client_product_id' => $cp]) }}">
+                    <i class="fas fa-ticket-alt" aria-hidden="true"></i> Tickets del plan
+                </a>
                 @can('clients.edit')
                 @if ($pivot->status=='1')
-                    <a onclick="SuspenderPlan({{$cp}},'{{$product->name}}')" class="btn btn-sm btn-warning" href="#!"><i class="fas fa-pause" aria-hidden="true"></i> Suspender plan</a>
+                    <a onclick="SuspenderPlan({{$cp}},'{{$product->name}}')" class="btn btn-sm btn-plan-suspend" href="#!"><i class="fas fa-pause" aria-hidden="true"></i> Suspender plan</a>
                 @elseif ($pivot->status=='0')
-                    <a onclick="ActivarPlan({{$cp}},'{{$product->name}}')" class="btn btn-sm btn-success" href="#!"><i class="fas fa-check" aria-hidden="true"></i> Activar plan</a>
+                    <a onclick="ActivarPlan({{$cp}},'{{$product->name}}')" class="btn btn-sm btn-plan-activate" href="#!"><i class="fas fa-check" aria-hidden="true"></i> Activar plan</a>
                 @endif
                 @endcan
                 @can('clients.edit')
                 @if ($pivot->status!='-1')
-                    <a onclick="CancelarPlan({{$cp}},'{{$product->name}}')" class="btn btn-sm btn-secondary" href="#!"><i class="fas fa-ban" aria-hidden="true"></i> Cancelar plan</a>
+                    <a onclick="CancelarPlan({{$cp}},'{{$product->name}}')" class="btn btn-sm btn-plan-cancel" href="#!"><i class="fas fa-ban" aria-hidden="true"></i> Cancelar plan</a>
                 @endif
                 @endcan
                 @can('clients.edit')
                 @if ($pivot->status!='-1')
-                    <a onclick="EliminarPlan({{$cp}},'{{$product->name}}')" class="btn btn-sm btn-danger" href="#!"><i class="fas fa-trash" aria-hidden="true"></i> Eliminar plan</a>
+                    <a onclick="EliminarPlan({{$cp}},'{{$product->name}}')" class="btn btn-sm btn-plan-delete" href="#!"><i class="fas fa-trash" aria-hidden="true"></i> Eliminar plan</a>
                 @endif
                 @endcan
                 </div>
             </div>
             <div class="col-lg-6 col-md-12">
-                <div class="card">
+                <div class="card plan-detail-card">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col">
-                                <h5 class="mb-0 fw-bold">Datos del plan</h5>
+                        <div class="plan-detail-card-header">
+                            <div>
+                                <h5 class="plan-detail-card-title">Datos del plan</h5>
+                            </div>
+                            <span class="plan-detail-card-badge"><i class="fas fa-box-open" aria-hidden="true"></i> {{ $product->name }}</span>
+                        </div>
+                        <div class="plan-detail-list">
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Codigo</h6>
+                                <div class="plan-detail-value">{{ $product->id }}</div>
+                            </div>
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Nombre</h6>
+                                <div class="plan-detail-value">{{ $product->name }}</div>
+                            </div>
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Velocidad</h6>
+                                <div class="plan-detail-value">{{ $product->velocidad }}</div>
+                            </div>
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Precio</h6>
+                                <div class="plan-detail-value">{{ $product->price_formatted }}</div>
                             </div>
                         </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Código: </h6>
-                            </div>
-                            <div class="col-sm-9">
-                                {{ $product->id}}
-                            </div>
-                        </div>
-                        <hr>
-        
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Nombre: </h6>
-                            </div>
-                            <div class="col-sm-9">
-                                {{ $product->name}}
-                            </div>
-                        </div>
-                        <hr>
-        
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Velocidad: </h6>
-                            </div>
-                            <div class="col-sm-9">
-                                {{ $product->velocidad}}
-                            </div>
-                        </div>
-                        <hr>
-        
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Precio: </h6>
-                            </div>
-                            <div class="col-sm-9">
-                                {{ $product->price_formatted}}
-                            </div>
-                        </div>
-                        <hr>
                     </div>
                 </div>
             </div>
             
             <div class="col-lg-6 col-md-12">
-                <div class="card">
+                <div class="card plan-detail-card">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col">
-                                <h5 class="mb-0 fw-bold">Datos de contratación</h5>
+                        <div class="plan-detail-card-header">
+                            <div>
+                                <h5 class="plan-detail-card-title">Datos de contratacion</h5>
                             </div>
+                            <span class="plan-detail-card-badge"><i class="fas fa-map-marker-alt" aria-hidden="true"></i> {{ optional($pivot->node->zone)->name }}</span>
                         </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Dirección: </h6>
+                        <div class="plan-detail-list">
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Direccion</h6>
+                                <div class="plan-detail-value">{{ $pivot->address }}</div>
                             </div>
-                            <div class="col-sm-9">
-                                {{ $pivot->address}}
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Referencia</h6>
+                                <div class="plan-detail-value">{{ $pivot->reference }}</div>
                             </div>
-                        </div>
-                        <hr>
-        
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Referencia: </h6>
-                            </div>
-                            <div class="col-sm-9">
-                                {{ $pivot->reference}}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Coordenadas: </h6>
-                            </div>
-                            <div class="col-sm-9">
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Coordenadas</h6>
+                                <div class="plan-detail-value">
                                 @if ($pivot->latitude && $pivot->longitude)
                                     <div>{{ $pivot->latitude }}, {{ $pivot->longitude }}</div>
                                     <div class="plan-nav-actions mt-2">
@@ -339,94 +757,56 @@
                                         </a>
                                     </div>
                                 @else
-                                    <span class="text-muted">No registradas</span>
+                                    <span class="plan-detail-value-muted">No registradas</span>
                                 @endif
+                                </div>
                             </div>
-                        </div>
-                        <hr>
-        
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Zona: </h6>
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Zona</h6>
+                                <div class="plan-detail-value">{{ $pivot->node->zone->id.' / '.$pivot->node->zone->name }}</div>
                             </div>
-                            <div class="col-sm-9">
-                                {{ $pivot->node->zone->id.' / '.$pivot->node->zone->name}}
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Nodo</h6>
+                                <div class="plan-detail-value">{{ $pivot->node->id.' / '.$pivot->node->name }}</div>
                             </div>
-                        </div>
-        
-                        <hr><div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Nodo: </h6>
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Fecha de instalacion</h6>
+                                <div class="plan-detail-value">{{ $pivot->date_instalation }}</div>
                             </div>
-                            <div class="col-sm-9">
-                                {{ $pivot->node->id.' / '.$pivot->node->name}}
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Pago instalacion</h6>
+                                <div class="plan-detail-value">{{ $pivot->amount_installation_formatted }}</div>
                             </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Fecha de Instalación: </h6>
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Pago anticipado</h6>
+                                <div class="plan-detail-value">{!! $pivot->advance_html !!}</div>
                             </div>
-                            <div class="col-sm-9">
-                                {{ $pivot->date_instalation }}
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Estado</h6>
+                                <div class="plan-detail-value">{!! $pivot->status_html !!}</div>
                             </div>
-                        </div>
-                        <hr><div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Pago Instalacion: </h6>
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Meses anticipados</h6>
+                                <div class="plan-detail-value">{{ $pivot->payments_advancement }}</div>
                             </div>
-                            <div class="col-sm-9">
-                                {{ $pivot->amount_installation_formatted }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Pago Anticipado: </h6>
-                            </div>
-                            <div class="col-sm-9">
-                                {!! $pivot->advance_html !!}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Estado: </h6>
-                            </div>
-                            <div class="col-sm-9">
-                                {!! $pivot->status_html !!}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Meses anticipados que le quedan: </h6>
-                            </div>
-                            <div class="col-sm-9">
-                                {{ $pivot->payments_advancement }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-sm-3">
-                            <h6 class="mb-0 fw-bold">Fotos: </h6>
-                            </div>
-                            <div class="col-sm-9">
+                            <div class="plan-detail-item">
+                                <h6 class="plan-detail-label">Fotos</h6>
+                                <div class="plan-detail-value">
                                 @php($storedPhotos = $pivot->installation_photo_urls)
                                 @if (!empty($storedPhotos))
-                                    <div class="d-flex flex-wrap gap-2">
+                                    <div class="plan-photo-grid">
                                         @foreach ($storedPhotos as $photoUrl)
                                             <a href="{{ $photoUrl }}" target="_blank" rel="noopener">
-                                                <img src="{{ $photoUrl }}" alt="Foto de instalacion" style="width: 88px; height: 88px; object-fit: cover; border-radius: 12px; border: 1px solid #dbe2f0;">
+                                                <img src="{{ $photoUrl }}" alt="Foto de instalacion">
                                             </a>
                                         @endforeach
                                     </div>
                                 @else
-                                    <span class="text-muted">No hay fotos adjuntas</span>
+                                    <span class="plan-detail-value-muted">No hay fotos adjuntas</span>
                                 @endif
+                                </div>
                             </div>
                         </div>
-                        <hr>
                     </div>
                 </div>
             </div>
@@ -672,11 +1052,13 @@
                         <label>Fotos guardadas</label>
                         <div class="d-flex flex-wrap gap-2">
                             @foreach ($existing_plan_photos as $photoPath)
-                                <a href="{{ asset('laravel/storage/app/public/'.ltrim($photoPath, '/')) }}" target="_blank" rel="noopener">
-                                    <img src="{{ asset('laravel/storage/app/public/'.ltrim($photoPath, '/')) }}" alt="Foto guardada" style="width: 84px; height: 84px; object-fit: cover; border-radius: 12px; border: 1px solid #dbe2f0;">
+                                @php($storedPhotoUrl = preg_match('/^https?:\/\//i', (string) $photoPath) ? $photoPath : Storage::disk('public')->url(ltrim($photoPath, '/')))
+                                <a href="{{ $storedPhotoUrl }}" target="_blank" rel="noopener">
+                                    <img src="{{ $storedPhotoUrl }}" alt="Foto guardada" style="width: 84px; height: 84px; object-fit: cover; border-radius: 12px; border: 1px solid #dbe2f0; box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);">
                                 </a>
                             @endforeach
                         </div>
+                        <small class="d-block text-muted mt-2">Las fotos ya guardadas se muestran aqui y tambien en Datos de contratacion.</small>
                     </div>
                 @endif
 

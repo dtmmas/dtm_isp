@@ -14,7 +14,14 @@ class PdfController extends Controller
         ->find($payment_id);
         $mes = $this->mesFecha($payment->invoice->date);
         $nombre = 'Factura_'.$payment->numero.'.pdf';
-        $pdf = PDF::loadView('pdfs.payment', compact('payment','mes'))->setPaper("A6", "portrait");
+        $ticketConfig = ticketPrintConfig();
+        $pdf = PDF::loadView('pdfs.payment', compact('payment', 'mes', 'ticketConfig'))
+            ->setPaper([
+                0,
+                0,
+                $this->mmToPoints((int) $ticketConfig->ticket_rollo_ancho_mm),
+                $this->mmToPoints(600),
+            ], 'portrait');
         return $pdf->stream($nombre);
     }
 
@@ -25,5 +32,10 @@ class PdfController extends Controller
         $mes = $this->mesFecha($payment->invoice->date);
 
         return view('payments.print', compact('payment', 'mes'));
+    }
+
+    private function mmToPoints($millimeters)
+    {
+        return (float) $millimeters * 2.8346456693;
     }
 }

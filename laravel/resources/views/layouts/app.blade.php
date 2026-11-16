@@ -222,6 +222,7 @@
                 };
 
                 let connectPromise = null;
+                let preparedBrowserWindow = null;
 
                 function hasQzTray() {
                     return typeof window.qz !== 'undefined';
@@ -288,26 +289,57 @@
                     const url = payload && payload.fallback_url
                         ? payload.fallback_url
                         : settings.previewUrlTemplate.replace('__PAYMENT__', paymentId);
-                    const iframe = document.createElement('iframe');
+                    const printWindow = (!preparedBrowserWindow || preparedBrowserWindow.closed)
+                        ? window.open('about:blank', 'dtm-payment-print', 'width=420,height=720')
+                        : preparedBrowserWindow;
 
-                    iframe.style.position = 'fixed';
-                    iframe.style.right = '0';
-                    iframe.style.bottom = '0';
-                    iframe.style.width = '0';
-                    iframe.style.height = '0';
-                    iframe.style.border = '0';
-                    iframe.src = url;
-                    iframe.onload = function () {
-                        setTimeout(function () {
-                            if (iframe.parentNode) {
-                                iframe.parentNode.removeChild(iframe);
-                            }
-                        }, 60000);
-                    };
+                    preparedBrowserWindow = null;
 
-                    document.body.appendChild(iframe);
+                    if (!printWindow) {
+                        return Promise.reject(new Error('El navegador bloqueo la ventana de impresion.'));
+                    }
+
+                    try {
+                        printWindow.document.open();
+                        printWindow.document.write('<!DOCTYPE html><html><head><title>Imprimiendo...</title></head><body style="font-family: Arial, sans-serif; padding: 16px;">Preparando recibo...</body></html>');
+                        printWindow.document.close();
+                    } catch (error) {
+                        // If the browser already navigated or restricted document writes, continue with navigation.
+                    }
+
+                    printWindow.location.href = url;
+                    printWindow.focus();
 
                     return Promise.resolve({ mode: 'browser' });
+                }
+
+                function prepareBrowserPrintWindow() {
+                    if (preparedBrowserWindow && !preparedBrowserWindow.closed) {
+                        preparedBrowserWindow.focus();
+                        return preparedBrowserWindow;
+                    }
+
+                    preparedBrowserWindow = window.open('about:blank', 'dtm-payment-print', 'width=420,height=720');
+
+                    if (preparedBrowserWindow) {
+                        try {
+                            preparedBrowserWindow.document.open();
+                            preparedBrowserWindow.document.write('<!DOCTYPE html><html><head><title>Procesando pago...</title></head><body style="font-family: Arial, sans-serif; padding: 16px;">Procesando pago, espera un momento...</body></html>');
+                            preparedBrowserWindow.document.close();
+                        } catch (error) {
+                            // Ignore document write failures; navigation later will still be attempted.
+                        }
+                    }
+
+                    return preparedBrowserWindow;
+                }
+
+                function closePreparedBrowserWindow() {
+                    if (preparedBrowserWindow && !preparedBrowserWindow.closed) {
+                        preparedBrowserWindow.close();
+                    }
+
+                    preparedBrowserWindow = null;
                 }
 
                 function ensureConnection() {
@@ -401,6 +433,7 @@
                                 });
 
                                 return qz.print(config, buildQzData(payload)).then(function() {
+                                    closePreparedBrowserWindow();
                                     return {
                                         mode: 'qz',
                                         printer: printerName,
@@ -422,6 +455,8 @@
                 return {
                     enabled: settings.enabled,
                     hasQzTray: hasQzTray,
+                    prepareBrowserPrintWindow: prepareBrowserPrintWindow,
+                    closePreparedBrowserWindow: closePreparedBrowserWindow,
                     printPaymentReceipt: printPaymentReceipt,
                     printViaBrowser: printViaBrowser,
                 };

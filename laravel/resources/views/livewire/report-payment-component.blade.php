@@ -1,6 +1,7 @@
 <div>
     <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#ModalPagar{{$invoice->id}}">
-        Pago con Deposito
+        <i class="fas fa-university" aria-hidden="true"></i>
+        Depositos
     </button>
 
     <!-- Modal PAGAR-->
@@ -42,7 +43,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" wire:click="resetInputFields" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" wire:loading.attr="disabled" wire:target="img_voucher,store" wire:click="store()" class="btn btn-primary">Enviar Pago</button>
+                <button type="button" onclick="window.DTMPrinter && window.DTMPrinter.prepareBrowserPrintWindow();" wire:loading.attr="disabled" wire:target="img_voucher,store" wire:click="store()" class="btn btn-primary">Enviar Pago</button>
             </div>
             </div>
         </div>
@@ -50,7 +51,8 @@
    
     @if (Auth::user()->hasRole('Cobrador') || Auth::user()->hasRole('Admin') || Auth::user()->hasRole('Secretaria'))
         <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#ModalPagarEfectivo{{$invoice->id}}">
-            Pago en Efectivo
+            <span class="invoice-currency-icon" aria-hidden="true">Q</span>
+            Efectivo
         </button>
 
         <!-- Modal PAGAR-->
@@ -65,7 +67,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" wire:click="resetInputFields" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" wire:loading.attr="disabled" wire:target="img_voucher,store" wire:click="store('3')" class="btn btn-primary">Enviar Pago</button>
+                    <button type="button" onclick="window.DTMPrinter && window.DTMPrinter.prepareBrowserPrintWindow();" wire:loading.attr="disabled" wire:target="img_voucher,store" wire:click="store('3')" class="btn btn-primary">Enviar Pago</button>
                 </div>
                 </div>
             </div>

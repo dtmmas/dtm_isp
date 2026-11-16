@@ -48,8 +48,8 @@ class InvoiceComponent extends Component
     {
 
         if(!empty($this->pivot)){
-            $list_invoices = Invoice::
-            where('client_product_id',$this->pivot->id)
+            $list_invoices = Invoice::with('payments')
+            ->where('client_product_id',$this->pivot->id)
             ->where(function($query){
                 if($this->search!=''){
                     $query->where('created_at','LIKE','%'.$this->search.'%');
@@ -69,7 +69,7 @@ class InvoiceComponent extends Component
 
 
             if($this->mostrarFacturasPendientes!='All'){
-                $list_invoices = Client::with('client_products.invoices')->find($this->client->id)
+                $list_invoices = Client::with('client_products.invoices.payments')->find($this->client->id)
                     ->client_products()
                     ->has('invoices')
                     ->latest()
@@ -78,7 +78,7 @@ class InvoiceComponent extends Component
                     ->collapse()
                     ->where('status',$this->mostrarFacturasPendientes);
             }else{
-                $list_invoices = Client::with('client_products.invoices')->find($this->client->id)
+                $list_invoices = Client::with('client_products.invoices.payments')->find($this->client->id)
                 ->client_products()
                 ->has('invoices')
                 ->latest()
@@ -97,7 +97,7 @@ class InvoiceComponent extends Component
             if(Auth::user()->hasRole('Cobrador')){
                 $my_client_product = implode(',', Auth::user()->clientProductsArray());
 
-                $list_invoices = Invoice::with('client_product')
+                $list_invoices = Invoice::with('client_product', 'payments')
                 ->whereHas('client_product.client.user', function($query) use ($my_client_product){
                     if($this->search!=''){
                         $query->where(function ($searchQuery) {
@@ -132,7 +132,7 @@ class InvoiceComponent extends Component
                 ->paginate($this->pagination);
 
             }else{
-                $list_invoices = Invoice::with('client_product')
+                $list_invoices = Invoice::with('client_product', 'payments')
                 ->whereHas('client_product.client.user', function($query){
                     if($this->search!=''){
                         $query->where(function($query){

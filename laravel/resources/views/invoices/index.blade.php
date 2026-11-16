@@ -10,44 +10,19 @@
 
     <x-slot name="script">
         <script type="text/javascript">
-            function printPaymentReceipts(paymentId) {
+            function printPaymentReceipts(paymentId, options) {
                 if (!paymentId) {
-                    return;
+                    return Promise.resolve(null);
                 }
 
-                if (window.DTMPrinter) {
-                        return window.DTMPrinter.printPaymentReceipt(paymentId, {
-                            allowBrowserFallback: false,
-                        }).catch(function () {
-                            swal('No fue posible reimprimir sin selector. Verifica que QZ Tray este activo en esta estacion.', {icon: 'warning'});
-                        });
-                }
-            }
-
-            function promptPaymentReceiptReprint(paymentId) {
-                if (!paymentId) {
-                    return;
-                }
-
-                setTimeout(function () {
-                    swal({
-                        title: "Ticket impreso",
-                        text: "¿Desea reimprimir el ticket?",
-                        icon: "info",
-                        buttons: {
-                            cancel: "No",
-                            confirm: {
-                                text: "Si, reimprimir",
-                                value: true,
-                                visible: true
-                            },
-                        },
-                    }).then((shouldReprint) => {
-                        if (shouldReprint) {
-                            printPaymentReceipts(paymentId);
-                        }
+                if (window.DTMPrinter && typeof window.DTMPrinter.printViaBrowser === 'function') {
+                    return window.DTMPrinter.printViaBrowser(paymentId).catch(function () {
+                        swal('No fue posible abrir la impresion del recibo. Verifica que el navegador permita ventanas emergentes.', {icon: 'warning'});
+                        return null;
                     });
-                }, 1200);
+                }
+
+                return Promise.resolve(null);
             }
 
             window.livewire.on('paymentUpdateStore', (message, id, paymentId) => {
@@ -55,7 +30,6 @@
                 $('#ModalPagarEfectivo'+id).modal('hide');
                 swal(message, {icon: "success", buttons: false, timer: 1200});
                 printPaymentReceipts(paymentId);
-                promptPaymentReceiptReprint(paymentId);
             });
             
         </script>

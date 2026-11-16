@@ -2,9 +2,11 @@
 
 namespace App\Http\Livewire;
 
+use App\Models\ClientProduct;
+use App\Models\Invoice;
+use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\Setting;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\WithFileUploads;
@@ -41,6 +43,21 @@ class SettingComponent extends Component
     public $ticket_mostrar_observacion = true;
     public $ticket_auto_imprimir = true;
     public $ticket_estilos = [];
+    public $invoice_audit_results = [];
+    public $invoice_audit_summary = [
+        'plans_checked' => 0,
+        'plans_with_issues' => 0,
+        'missing_months' => 0,
+        'created_invoices' => 0,
+        'last_run_at' => null,
+    ];
+    public $invoice_unpaid_audit_results = [];
+    public $invoice_unpaid_audit_summary = [
+        'plans_checked' => 0,
+        'plans_with_issues' => 0,
+        'unpaid_months' => 0,
+        'last_run_at' => null,
+    ];
 
     public $tab='empresa';
 
@@ -166,6 +183,83 @@ class SettingComponent extends Component
         $this->emit('infoGuardada', 'Configuración del ticket guardada correctamente');
     }
 
+    public function auditarMesesFacturacion()
+    {
+        abort_if(!Auth::user()->can('setting.index'), 401);
+
+        [$results, $summary] = $this->buildInvoiceAuditSnapshot();
+
+        $this->invoice_audit_results = $results;
+        $this->invoice_audit_summary = $summary;
+
+        $this->emit(
+            'infoGuardada',
+            $summary['plans_with_issues'] > 0
+                ? 'Auditoría completada. Se encontraron '.$summary['missing_months'].' meses faltantes.'
+                : 'Auditoría completada. No se encontraron meses faltantes.'
+        );
+    }
+
+    public function crearMesesFaltantes($clientProductId)
+    {
+        abort_if(!Auth::user()->can('setting.index'), 401);
+
+        $contract = $this->buildAuditBaseQuery()
+            ->where('id', $clientProductId)
+            ->firstOrFail();
+
+        $auditItem = $this->buildAuditItem($contract);
+
+        if (!$auditItem || empty($auditItem['missing_month_keys'])) {
+            $this->auditarMesesFacturacion();
+            $this->emit('infoGuardada', 'Ese plan no tiene meses faltantes pendientes.');
+            return;
+        }
+
+        $createdInvoices = $this->createMissingInvoicesForPlan($contract, $auditItem['missing_month_keys']);
+
+        $this->auditarMesesFacturacion();
+        $this->emit('infoGuardada', 'Se crearon '.$createdInvoices.' factura(s) faltante(s) para '.$auditItem['client_name'].'.');
+    }
+
+    public function crearTodosLosMesesFaltantes()
+    {
+        abort_if(!Auth::user()->can('setting.index'), 401);
+
+        $contracts = $this->buildAuditBaseQuery()->get();
+        $createdInvoices = 0;
+
+        foreach ($contracts as $contract) {
+            $auditItem = $this->buildAuditItem($contract);
+
+            if (!$auditItem || empty($auditItem['missing_month_keys'])) {
+                continue;
+            }
+
+            $createdInvoices += $this->createMissingInvoicesForPlan($contract, $auditItem['missing_month_keys']);
+        }
+
+        $this->auditarMesesFacturacion();
+        $this->emit('infoGuardada', 'Se crearon '.$createdInvoices.' factura(s) faltante(s) en total.');
+    }
+
+    public function auditarMesesSinPago()
+    {
+        abort_if(!Auth::user()->can('setting.index'), 401);
+
+        [$results, $summary] = $this->buildUnpaidInvoiceAuditSnapshot();
+
+        $this->invoice_unpaid_audit_results = $results;
+        $this->invoice_unpaid_audit_summary = $summary;
+
+        $this->emit(
+            'infoGuardada',
+            $summary['plans_with_issues'] > 0
+                ? 'Auditoría completada. Se encontraron '.$summary['unpaid_months'].' meses con factura sin pagar.'
+                : 'Auditoría completada. No se encontraron meses con factura sin pagar.'
+        );
+    }
+
     private function saveSettingValue($type, $name, $value)
     {
         $setting = Setting::withTrashed()
@@ -214,6 +308,373 @@ class SettingComponent extends Component
         }
 
         return $value;
+    }
+
+    private function buildInvoiceAuditSnapshot()
+    {
+        $results = [];
+        $summary = [
+            'plans_checked' => 0,
+            'plans_with_issues' => 0,
+            'missing_months' => 0,
+            'created_invoices' => $this->invoice_audit_summary['created_invoices'] ?? 0,
+            'last_run_at' => now()->format('Y-m-d H:i:s'),
+        ];
+
+        foreach ($this->buildAuditBaseQuery()->get() as $contract) {
+            $summary['plans_checked']++;
+
+            $auditItem = $this->buildAuditItem($contract);
+
+            if (!$auditItem) {
+                continue;
+            }
+
+            $results[] = $auditItem;
+            $summary['plans_with_issues']++;
+            $summary['missing_months'] += count($auditItem['missing_month_keys']);
+        }
+
+        usort($results, function ($left, $right) {
+            return strcmp($left['client_name'], $right['client_name']);
+        });
+
+        return [$results, $summary];
+    }
+
+    private function buildUnpaidInvoiceAuditSnapshot()
+    {
+        $results = [];
+        $summary = [
+            'plans_checked' => 0,
+            'plans_with_issues' => 0,
+            'unpaid_months' => 0,
+            'last_run_at' => now()->format('Y-m-d H:i:s'),
+        ];
+
+        foreach ($this->buildAuditBaseQuery()->get() as $contract) {
+            $summary['plans_checked']++;
+
+            $auditItem = $this->buildUnpaidAuditItem($contract);
+
+            if (!$auditItem) {
+                continue;
+            }
+
+            $results[] = $auditItem;
+            $summary['plans_with_issues']++;
+            $summary['unpaid_months'] += count($auditItem['unpaid_month_keys']);
+        }
+
+        usort($results, function ($left, $right) {
+            return strcmp($left['client_name'], $right['client_name']);
+        });
+
+        return [$results, $summary];
+    }
+
+    private function buildAuditBaseQuery()
+    {
+        return ClientProduct::with([
+            'client.user',
+            'product',
+            'invoices' => function ($query) {
+                $query->orderBy('created_at');
+            },
+        ])->where('status', '1');
+    }
+
+    private function buildAuditItem(ClientProduct $contract)
+    {
+        $timeline = $this->resolveAuditTimeline($contract);
+
+        if (!$timeline) {
+            return null;
+        }
+
+        $existingMonthKeys = $timeline['existing_month_keys'];
+        $auditStartMonth = $timeline['audit_start_month'];
+        $auditEndMonth = $timeline['audit_end_month'];
+
+        $missingMonthKeys = [];
+        $existingLookup = array_flip($existingMonthKeys->all());
+        $coveredAdvanceMonthKeys = array_flip($this->buildAdvanceCoveredMonthKeys($contract, $auditEndMonth));
+        $cursor = $auditStartMonth->copy();
+
+        while ($cursor->lte($auditEndMonth)) {
+            $monthKey = $cursor->format('Y-m');
+
+            if (!isset($existingLookup[$monthKey]) && !isset($coveredAdvanceMonthKeys[$monthKey])) {
+                $missingMonthKeys[] = $monthKey;
+            }
+
+            $cursor->addMonthNoOverflow();
+        }
+
+        if (empty($missingMonthKeys)) {
+            return null;
+        }
+
+        return [
+            'client_product_id' => $contract->id,
+            'plan_url' => url('clients/'.$contract->client_id.'/products?modeResume=true&cp='.$contract->id),
+            'client_name' => optional(optional($contract->client)->user)->name_complete ?: 'Cliente sin nombre',
+            'plan_name' => optional($contract->product)->name ?: 'Plan sin nombre',
+            'address' => (string) ($contract->address ?: ''),
+            'reference' => (string) ($contract->reference ?: ''),
+            'start_month_label' => $this->monthLabel($auditStartMonth),
+            'reactivated_at_label' => $contract->reactivated_at ? Carbon::parse($contract->reactivated_at)->format('Y-m-d') : null,
+            'registered_months' => $existingMonthKeys->map(function ($monthKey) {
+                return $this->monthLabel(Carbon::createFromFormat('Y-m', $monthKey)->startOfMonth());
+            })->values()->all(),
+            'missing_months' => collect($missingMonthKeys)->map(function ($monthKey) {
+                return $this->monthLabel(Carbon::createFromFormat('Y-m', $monthKey)->startOfMonth());
+            })->values()->all(),
+            'missing_month_keys' => $missingMonthKeys,
+        ];
+    }
+
+    private function buildUnpaidAuditItem(ClientProduct $contract)
+    {
+        $timeline = $this->resolveAuditTimeline($contract);
+
+        if (!$timeline) {
+            return null;
+        }
+
+        $reactivationMonth = $timeline['reactivation_month'];
+        $auditStartMonth = $timeline['audit_start_month'];
+        $auditEndMonth = $timeline['audit_end_month'];
+
+        $invoicesByMonth = collect($contract->invoices)
+            ->filter(function ($invoice) use ($reactivationMonth) {
+                if (!$reactivationMonth) {
+                    return true;
+                }
+
+                return Carbon::parse($invoice->created_at)->startOfMonth()->gte($reactivationMonth);
+            })
+            ->groupBy(function ($invoice) {
+                return Carbon::parse($invoice->created_at)->startOfMonth()->format('Y-m');
+            });
+
+        $monthEntries = [];
+        $paidMonthLabels = [];
+        $unpaidMonthLabels = [];
+        $unpaidMonthKeys = [];
+        $cursor = $auditStartMonth->copy();
+
+        while ($cursor->lte($auditEndMonth)) {
+            $monthKey = $cursor->format('Y-m');
+            $monthInvoices = $invoicesByMonth->get($monthKey, collect());
+
+            if ($monthInvoices->isEmpty()) {
+                $cursor->addMonthNoOverflow();
+                continue;
+            }
+
+            $monthLabel = $this->monthLabel($cursor);
+            $hasPaidInvoice = $monthInvoices->contains(function ($invoice) {
+                return (string) $invoice->status === '1';
+            });
+            $statusLabels = $monthInvoices
+                ->map(function ($invoice) {
+                    return $invoice->statusVisualizacion();
+                })
+                ->unique()
+                ->values()
+                ->all();
+
+            $monthEntries[] = [
+                'key' => $monthKey,
+                'label' => $monthLabel,
+                'has_paid' => $hasPaidInvoice,
+                'status_labels' => $statusLabels,
+            ];
+
+            if ($hasPaidInvoice) {
+                $paidMonthLabels[] = $monthLabel;
+            }
+
+            $cursor->addMonthNoOverflow();
+        }
+
+        $paidMonthKeys = collect($monthEntries)
+            ->filter(function ($entry) {
+                return $entry['has_paid'];
+            })
+            ->pluck('key')
+            ->values();
+
+        if ($paidMonthKeys->count() < 2) {
+            return null;
+        }
+
+        foreach ($monthEntries as $entry) {
+            if ($entry['has_paid']) {
+                continue;
+            }
+
+            $hasPaidBefore = $paidMonthKeys->contains(function ($paidMonthKey) use ($entry) {
+                return $paidMonthKey < $entry['key'];
+            });
+
+            $hasPaidAfter = $paidMonthKeys->contains(function ($paidMonthKey) use ($entry) {
+                return $paidMonthKey > $entry['key'];
+            });
+
+            if (!$hasPaidBefore || !$hasPaidAfter) {
+                continue;
+            }
+
+            $unpaidMonthKeys[] = $entry['key'];
+            $unpaidMonthLabels[] = $entry['label'].' ('.implode(', ', $entry['status_labels']).')';
+        }
+
+        if (empty($unpaidMonthKeys)) {
+            return null;
+        }
+
+        return [
+            'client_product_id' => $contract->id,
+            'plan_url' => url('clients/'.$contract->client_id.'/products?modeResume=true&cp='.$contract->id),
+            'client_name' => optional(optional($contract->client)->user)->name_complete ?: 'Cliente sin nombre',
+            'plan_name' => optional($contract->product)->name ?: 'Plan sin nombre',
+            'address' => (string) ($contract->address ?: ''),
+            'reference' => (string) ($contract->reference ?: ''),
+            'start_month_label' => $this->monthLabel($auditStartMonth),
+            'reactivated_at_label' => $contract->reactivated_at ? Carbon::parse($contract->reactivated_at)->format('Y-m-d') : null,
+            'paid_months' => $paidMonthLabels,
+            'unpaid_months' => $unpaidMonthLabels,
+            'unpaid_month_keys' => $unpaidMonthKeys,
+        ];
+    }
+
+    private function resolveAuditTimeline(ClientProduct $contract)
+    {
+        $rawExistingMonthKeys = collect($contract->invoices)
+            ->map(function ($invoice) {
+                return Carbon::parse($invoice->created_at)->startOfMonth()->format('Y-m');
+            })
+            ->unique()
+            ->sort()
+            ->values();
+
+        $reactivationMonth = $contract->reactivated_at
+            ? Carbon::parse($contract->reactivated_at)->startOfMonth()
+            : null;
+
+        $existingMonthKeys = $rawExistingMonthKeys
+            ->filter(function ($monthKey) use ($reactivationMonth) {
+                if (!$reactivationMonth) {
+                    return true;
+                }
+
+                return Carbon::createFromFormat('Y-m', $monthKey)->startOfMonth()->gte($reactivationMonth);
+            })
+            ->values();
+
+        if ($existingMonthKeys->isEmpty()) {
+            return null;
+        }
+
+        $auditStartMonth = Carbon::createFromFormat('Y-m', $existingMonthKeys->first())->startOfMonth();
+        $auditEndMonth = now()->startOfMonth();
+        $latestExistingMonth = Carbon::createFromFormat('Y-m', $existingMonthKeys->last())->startOfMonth();
+
+        if ($latestExistingMonth->gt($auditEndMonth)) {
+            $auditEndMonth = $latestExistingMonth;
+        }
+
+        return [
+            'reactivation_month' => $reactivationMonth,
+            'existing_month_keys' => $existingMonthKeys,
+            'audit_start_month' => $auditStartMonth,
+            'audit_end_month' => $auditEndMonth,
+        ];
+    }
+
+    private function buildAdvanceCoveredMonthKeys(ClientProduct $contract, Carbon $auditEndMonth)
+    {
+        $paymentsAdvancement = max(0, (int) $contract->payments_advancement);
+        $discountedMonth = $contract->discounted_month ? Carbon::parse($contract->discounted_month)->startOfMonth() : null;
+
+        if ($paymentsAdvancement === 0 && !$discountedMonth) {
+            return [];
+        }
+
+        $coveredMonthKeys = [];
+        $coveredStart = $discountedMonth ?: now()->startOfMonth();
+        $coveredCount = $discountedMonth ? max(1, $paymentsAdvancement + 1) : $paymentsAdvancement;
+        $coveredCursor = $coveredStart->copy();
+
+        for ($index = 0; $index < $coveredCount; $index++) {
+            if ($coveredCursor->gt($auditEndMonth)) {
+                break;
+            }
+
+            $coveredMonthKeys[] = $coveredCursor->format('Y-m');
+            $coveredCursor->addMonthNoOverflow();
+        }
+
+        return array_values(array_unique($coveredMonthKeys));
+    }
+
+    private function createMissingInvoicesForPlan(ClientProduct $contract, array $missingMonthKeys)
+    {
+        $createdInvoices = 0;
+        $planPrice = (float) optional($contract->product)->price;
+
+        foreach ($missingMonthKeys as $monthKey) {
+            $month = Carbon::createFromFormat('Y-m', $monthKey)->startOfMonth();
+            $monthEnd = $month->copy()->endOfMonth();
+
+            $invoiceExists = Invoice::where('client_product_id', $contract->id)
+                ->whereBetween('created_at', [$month->copy()->startOfMonth(), $monthEnd->copy()->endOfDay()])
+                ->exists();
+
+            if ($invoiceExists) {
+                continue;
+            }
+
+            $createdAt = $month->copy()->day(min(5, (int) $monthEnd->format('d')))->setTime(12, 0, 0);
+
+            Invoice::create([
+                'user_id' => Auth::id(),
+                'client_product_id' => $contract->id,
+                'price' => $planPrice,
+                'date_expiration' => $monthEnd->format('Y-m-d 23:59:59'),
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
+                'status' => $monthEnd->lt(now()) ? '-1' : '0',
+            ]);
+
+            $createdInvoices++;
+        }
+
+        $this->invoice_audit_summary['created_invoices'] = ($this->invoice_audit_summary['created_invoices'] ?? 0) + $createdInvoices;
+
+        return $createdInvoices;
+    }
+
+    private function monthLabel(Carbon $date)
+    {
+        $monthNames = [
+            1 => 'Enero',
+            2 => 'Febrero',
+            3 => 'Marzo',
+            4 => 'Abril',
+            5 => 'Mayo',
+            6 => 'Junio',
+            7 => 'Julio',
+            8 => 'Agosto',
+            9 => 'Septiembre',
+            10 => 'Octubre',
+            11 => 'Noviembre',
+            12 => 'Diciembre',
+        ];
+
+        return ($monthNames[(int) $date->format('n')] ?? $date->format('F')).' '.$date->format('Y');
     }
 
     private function defaultTicketStyles()

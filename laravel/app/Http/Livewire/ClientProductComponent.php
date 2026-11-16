@@ -258,7 +258,10 @@ class ClientProductComponent extends Component
         abort_if(!Auth::user()->can('clients.edit'), 401);
 
         $clientProduct = ClientProduct::findOrFail($id);
-        $clientProduct->update(['status' => '0']);
+        $clientProduct->update([
+            'status' => '0',
+            'suspended_at' => now(),
+        ]);
 
         if ($this->modeResume && $this->cp == $id) {
             $this->detail($id);
@@ -272,7 +275,10 @@ class ClientProductComponent extends Component
         abort_if(!Auth::user()->can('clients.edit'), 401);
 
         $clientProduct = ClientProduct::findOrFail($id);
-        $clientProduct->update(['status' => '1']);
+        $clientProduct->update([
+            'status' => '1',
+            'reactivated_at' => now(),
+        ]);
 
         if ($this->modeResume && $this->cp == $id) {
             $this->detail($id);
@@ -305,7 +311,10 @@ class ClientProductComponent extends Component
             $invoice->delete();
         }
 
-        $clientProduct->update(['status' => '-1']);
+        $clientProduct->update([
+            'status' => '-1',
+            'suspended_at' => now(),
+        ]);
 
         if ($this->modeResume && $this->cp == $id) {
             $this->detail($id);

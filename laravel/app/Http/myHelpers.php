@@ -408,12 +408,12 @@ function ticketSectionFontFamilyCss($family)
 {
    switch ($family) {
       case 'serif':
-         return "Georgia, 'Times New Roman', serif";
+         return "'Times-Roman', Georgia, 'Times New Roman', serif";
       case 'mono':
-         return "'Courier New', monospace";
+         return "Courier, 'Courier New', monospace";
       case 'sans':
       default:
-         return "Arial, Helvetica, sans-serif";
+         return "Helvetica, Arial, sans-serif";
    }
 }
 

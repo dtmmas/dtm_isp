@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Facades\Storage;
 use App\Traits\FunctionGeneral;
 
 class ClientProduct extends Pivot
@@ -21,6 +22,8 @@ class ClientProduct extends Pivot
         'amount_installation',
         'advance',
         'status',
+        'suspended_at',
+        'reactivated_at',
         'payments_advancement',
         'discounted_month',
         'installation_photos',
@@ -28,6 +31,8 @@ class ClientProduct extends Pivot
 
     protected $casts = [
         'installation_photos' => 'array',
+        'suspended_at' => 'datetime',
+        'reactivated_at' => 'datetime',
     ];
 
     protected $appends = [
@@ -92,7 +97,11 @@ class ClientProduct extends Pivot
         $photos = is_array($this->installation_photos) ? $this->installation_photos : [];
 
         return collect($photos)->map(function ($photo) {
-            return asset('laravel/storage/app/public/'.ltrim($photo, '/'));
+            if (preg_match('/^https?:\/\//i', (string) $photo)) {
+                return $photo;
+            }
+
+            return Storage::disk('public')->url(ltrim($photo, '/'));
         })->values()->all();
     }
 

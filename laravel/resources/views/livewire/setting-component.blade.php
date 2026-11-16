@@ -369,6 +369,213 @@
 
                     <div class="card border mt-4">
                         <div class="card-body">
+                            <h4 class="mb-2">Auditoria de meses en facturacion mensual</h4>
+                            <p class="text-muted mb-3">
+                                Revisa los planes activos y detecta meses faltantes en la facturacion mensual. Si un plan tiene huecos entre el mes de inicio y los meses ya facturados, aqui se listaran y podras crear las facturas faltantes.
+                            </p>
+
+                            <div class="d-flex flex-wrap align-items-center mb-3" style="gap: 10px;">
+                                <button type="button" wire:click="auditarMesesFacturacion" wire:loading.attr="disabled" wire:target="auditarMesesFacturacion,crearMesesFaltantes,crearTodosLosMesesFaltantes" class="btn btn-info">
+                                    Auditar meses faltantes
+                                </button>
+                                <button type="button" wire:click="crearTodosLosMesesFaltantes" wire:loading.attr="disabled" wire:target="auditarMesesFacturacion,crearMesesFaltantes,crearTodosLosMesesFaltantes" class="btn btn-warning" @if (empty($invoice_audit_results)) disabled @endif>
+                                    Crear todos los meses faltantes
+                                </button>
+                                <span wire:loading wire:target="auditarMesesFacturacion,crearMesesFaltantes,crearTodosLosMesesFaltantes" class="text-primary">
+                                    Procesando auditoria...
+                                </span>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-3 col-sm-6 mb-2">
+                                    <div class="border rounded p-2 bg-light">
+                                        <small class="text-muted d-block">Planes revisados</small>
+                                        <strong>{{ (int) ($invoice_audit_summary['plans_checked'] ?? 0) }}</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-2">
+                                    <div class="border rounded p-2 bg-light">
+                                        <small class="text-muted d-block">Planes con problema</small>
+                                        <strong>{{ (int) ($invoice_audit_summary['plans_with_issues'] ?? 0) }}</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-2">
+                                    <div class="border rounded p-2 bg-light">
+                                        <small class="text-muted d-block">Meses faltantes</small>
+                                        <strong>{{ (int) ($invoice_audit_summary['missing_months'] ?? 0) }}</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-2">
+                                    <div class="border rounded p-2 bg-light">
+                                        <small class="text-muted d-block">Ultima auditoria</small>
+                                        <strong>{{ $invoice_audit_summary['last_run_at'] ?? 'Sin ejecutar' }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (!empty($invoice_audit_results))
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Cliente</th>
+                                                <th>Plan</th>
+                                                <th>Inicio auditoria</th>
+                                                <th>Meses registrados</th>
+                                                <th>Meses faltantes</th>
+                                                <th>Accion</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($invoice_audit_results as $auditItem)
+                                                <tr>
+                                                    <td>
+                                                        <strong>{{ $auditItem['client_name'] }}</strong>
+                                                        @if (!empty($auditItem['address']))
+                                                            <br><small class="text-muted">{{ $auditItem['address'] }}</small>
+                                                        @elseif (!empty($auditItem['reference']))
+                                                            <br><small class="text-muted">{{ $auditItem['reference'] }}</small>
+                                                        @endif
+                                                        @if (!empty($auditItem['reactivated_at_label']))
+                                                            <br><small class="text-info">Reanudado: {{ $auditItem['reactivated_at_label'] }}</small>
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $auditItem['plan_name'] }}</td>
+                                                    <td>{{ $auditItem['start_month_label'] }}</td>
+                                                    <td>
+                                                        @foreach ($auditItem['registered_months'] as $registeredMonth)
+                                                            <span class="badge border mb-1" style="background:#f8fafc;color:#0f172a;border-color:#cbd5e1;">{{ $registeredMonth }}</span>
+                                                        @endforeach
+                                                    </td>
+                                                    <td>
+                                                        @foreach ($auditItem['missing_months'] as $missingMonth)
+                                                            <span class="badge mb-1" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;">{{ $missingMonth }}</span>
+                                                        @endforeach
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ $auditItem['plan_url'] }}" class="btn btn-sm btn-outline-info mb-1">
+                                                            Ver
+                                                        </a>
+                                                        <br>
+                                                        <button type="button" wire:click="crearMesesFaltantes({{ $auditItem['client_product_id'] }})" wire:loading.attr="disabled" wire:target="auditarMesesFacturacion,crearMesesFaltantes,crearTodosLosMesesFaltantes" class="btn btn-sm btn-outline-warning">
+                                                            Crear faltantes
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="alert alert-light border mb-0">
+                                    Ejecuta la auditoria para ver clientes y planes con meses faltantes en la facturacion mensual.
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="card border mt-4">
+                        <div class="card-body">
+                            <h4 class="mb-2">Auditoria de meses facturados pero no pagados</h4>
+                            <p class="text-muted mb-3">
+                                Revisa los planes activos y detecta meses donde ya existe factura creada, pero sigue pendiente o vencida y queda en medio de meses ya pagados. Por ejemplo, si agosto esta pagado, septiembre pendiente y octubre pagado, aqui se mostrara septiembre; si noviembre sigue pendiente y no tiene un mes pagado despues, no se listara.
+                            </p>
+
+                            <div class="d-flex flex-wrap align-items-center mb-3" style="gap: 10px;">
+                                <button type="button" wire:click="auditarMesesSinPago" wire:loading.attr="disabled" wire:target="auditarMesesSinPago" class="btn btn-outline-danger">
+                                    Auditar meses sin pagar
+                                </button>
+                                <span wire:loading wire:target="auditarMesesSinPago" class="text-primary">
+                                    Procesando auditoria...
+                                </span>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-3 col-sm-6 mb-2">
+                                    <div class="border rounded p-2 bg-light">
+                                        <small class="text-muted d-block">Planes revisados</small>
+                                        <strong>{{ (int) ($invoice_unpaid_audit_summary['plans_checked'] ?? 0) }}</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-2">
+                                    <div class="border rounded p-2 bg-light">
+                                        <small class="text-muted d-block">Planes con problema</small>
+                                        <strong>{{ (int) ($invoice_unpaid_audit_summary['plans_with_issues'] ?? 0) }}</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-2">
+                                    <div class="border rounded p-2 bg-light">
+                                        <small class="text-muted d-block">Meses sin pagar</small>
+                                        <strong>{{ (int) ($invoice_unpaid_audit_summary['unpaid_months'] ?? 0) }}</strong>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-2">
+                                    <div class="border rounded p-2 bg-light">
+                                        <small class="text-muted d-block">Ultima auditoria</small>
+                                        <strong>{{ $invoice_unpaid_audit_summary['last_run_at'] ?? 'Sin ejecutar' }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (!empty($invoice_unpaid_audit_results))
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Cliente</th>
+                                                <th>Plan</th>
+                                                <th>Inicio auditoria</th>
+                                                <th>Meses pagados</th>
+                                                <th>Meses sin pagar</th>
+                                                <th>Accion</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($invoice_unpaid_audit_results as $auditItem)
+                                                <tr>
+                                                    <td>
+                                                        <strong>{{ $auditItem['client_name'] }}</strong>
+                                                        @if (!empty($auditItem['address']))
+                                                            <br><small class="text-muted">{{ $auditItem['address'] }}</small>
+                                                        @elseif (!empty($auditItem['reference']))
+                                                            <br><small class="text-muted">{{ $auditItem['reference'] }}</small>
+                                                        @endif
+                                                        @if (!empty($auditItem['reactivated_at_label']))
+                                                            <br><small class="text-info">Reanudado: {{ $auditItem['reactivated_at_label'] }}</small>
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $auditItem['plan_name'] }}</td>
+                                                    <td>{{ $auditItem['start_month_label'] }}</td>
+                                                    <td>
+                                                        @foreach ($auditItem['paid_months'] as $paidMonth)
+                                                            <span class="badge border mb-1" style="background:#ecfdf5;color:#166534;border-color:#bbf7d0;">{{ $paidMonth }}</span>
+                                                        @endforeach
+                                                    </td>
+                                                    <td>
+                                                        @foreach ($auditItem['unpaid_months'] as $unpaidMonth)
+                                                            <span class="badge mb-1" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;">{{ $unpaidMonth }}</span>
+                                                        @endforeach
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ $auditItem['plan_url'] }}" class="btn btn-sm btn-outline-info mb-1">
+                                                            Ver
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="alert alert-light border mb-0">
+                                    Ejecuta la auditoria para ver clientes y planes que ya tienen factura creada pero aun no aparece pagada.
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="card border mt-4">
+                        <div class="card-body">
                             <h4 class="mb-2">Respaldo completo del sistema</h4>
                             <p class="text-muted mb-3">
                                 Genera un archivo ZIP con la base de datos en SQL, configuracion principal, codigo fuente y archivos necesarios para restaurar el sistema en otro equipo o servidor.
