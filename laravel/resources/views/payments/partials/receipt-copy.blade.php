@@ -20,14 +20,14 @@
         @endif
     </div>
 
-    <div class="receipt-divider" style="border-top-style: {{ $dividerStyle }}"></div>
+    <div class="receipt-divider" style="border-top-style: {{ $dividerStyle }}; border-top-width: {{ $dividerWidth }};"></div>
 
     <div class="receipt-centered" style="{{ $tituloStyle }}">
         <div><strong>{{ $ticketConfig->ticket_documento_titulo }} No. {{ $payment->numero }}</strong></div>
         <div>{{ $payment->created_at }}</div>
     </div>
 
-    <div class="receipt-divider" style="border-top-style: {{ $dividerStyle }}"></div>
+    <div class="receipt-divider" style="border-top-style: {{ $dividerStyle }}; border-top-width: {{ $dividerWidth }};"></div>
 
     <div class="receipt-block">
         <table class="receipt-kv" style="{{ $clienteStyle }}">
@@ -54,7 +54,7 @@
         </table>
     </div>
 
-    <div class="receipt-divider" style="border-top-style: {{ $dividerStyle }}"></div>
+    <div class="receipt-divider" style="border-top-style: {{ $dividerStyle }}; border-top-width: {{ $dividerWidth }};"></div>
 
     <div class="receipt-block">
         <table class="receipt-kv" style="{{ $conceptoStyle }}">
@@ -86,20 +86,20 @@
     </div>
 
     @if ($ticketConfig->ticket_mostrar_observacion && $payment->observation != '')
-        <div class="receipt-divider" style="border-top-style: {{ $dividerStyle }}"></div>
+        <div class="receipt-divider" style="border-top-style: {{ $dividerStyle }}; border-top-width: {{ $dividerWidth }};"></div>
         <div class="receipt-block receipt-observation" style="{{ $conceptoStyle }}">
             <strong>Observacion:</strong> {{ $payment->observation }}
         </div>
     @endif
 
     @if ($ticketConfig->ticket_mensaje_final != '')
-        <div class="receipt-divider" style="border-top-style: {{ $dividerStyle }}"></div>
+        <div class="receipt-divider" style="border-top-style: {{ $dividerStyle }}; border-top-width: {{ $dividerWidth }};"></div>
         <div class="receipt-centered" style="{{ $pieStyle }}">
             <strong>{{ $ticketConfig->ticket_mensaje_final }}</strong>
         </div>
     @endif
 
-    <div class="receipt-divider" style="border-top-style: {{ $dividerStyle }}"></div>
+    <div class="receipt-divider" style="border-top-style: {{ $dividerStyle }}; border-top-width: {{ $dividerWidth }};"></div>
     <div class="receipt-label" style="{{ $pieStyle }}">
         @if ($ticketConfig->ticket_copias <= 1)
             ORIGINAL

@@ -35,6 +35,7 @@ class SettingComponent extends Component
     public $ticket_margen_inferior_mm = 4;
     public $ticket_margen_izquierdo_mm = 4;
     public $ticket_separador_estilo = 'dashed';
+    public $ticket_separador_grosor = 'normal';
     public $ticket_mostrar_linea_corte = true;
     public $ticket_mostrar_logo = true;
     public $ticket_logo_ancho = 80;
@@ -138,6 +139,7 @@ class SettingComponent extends Component
             'ticket_margen_inferior_mm' => ['required', 'integer', 'in:2,4,6,8'],
             'ticket_margen_izquierdo_mm' => ['required', 'integer', 'in:2,4,6,8'],
             'ticket_separador_estilo' => ['required', 'in:dashed,solid,dotted'],
+            'ticket_separador_grosor' => ['required', 'in:normal,medium,high,full'],
             'ticket_mostrar_linea_corte' => ['boolean'],
             'ticket_mostrar_logo' => ['boolean'],
             'ticket_logo_ancho' => ['required', 'integer', 'min:40', 'max:180'],

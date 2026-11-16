@@ -80,6 +80,7 @@
                                     'concepto' => 'Concepto',
                                     'pie' => 'Pie de pagina',
                                 ];
+                                $ticketPreviewDividerStyle = 'border-top-style: '.$ticket_separador_estilo.'; border-top-width: '.ticketDividerWidthCss($ticket_separador_grosor).'; border-top-color: #000000;';
                             @endphp
                             <h4 class="mb-2">Configuracion de ticket o recibo</h4>
                             <p class="text-muted mb-3">
@@ -169,6 +170,16 @@
                                         <option value="dotted">Punteado</option>
                                     </select>
                                     @error('ticket_separador_estilo') <span class="text-danger">{{ $message }}</span>@enderror
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="ticket_separador_grosor">Grosor del separador</label>
+                                    <select wire:model="ticket_separador_grosor" id="ticket_separador_grosor" class="form-control">
+                                        <option value="normal">Normal</option>
+                                        <option value="medium">Mediana</option>
+                                        <option value="high">Alta</option>
+                                        <option value="full">Full</option>
+                                    </select>
+                                    @error('ticket_separador_grosor') <span class="text-danger">{{ $message }}</span>@enderror
                                 </div>
                                 <div class="form-group col-md-12">
                                     {!! Form::label('ticket_mensaje_final', 'Mensaje final del ticket'); !!}
@@ -284,12 +295,12 @@
                                             <span style="{{ ticketSectionStyleCss((object) ['styles' => $ticket_estilos], 'encabezado') }}">Tel: {{ $telefono_empresa }}</span>
 @endif
 
-                                    <div class="ticket-preview-divider" style="border-top-style: {{ $ticket_separador_estilo }}"></div>
+                                    <div class="ticket-preview-divider" style="{{ $ticketPreviewDividerStyle }}"></div>
                                     <div class="text-center" style="{{ ticketSectionStyleCss((object) ['styles' => $ticket_estilos], 'titulo') }}">
                                         <strong>{{ $ticket_documento_titulo ?: 'RECIBO' }} No. 000123</strong><br>
                                         <small>{{ now()->format('Y-m-d H:i') }}</small>
                                     </div>
-                                    <div class="ticket-preview-divider" style="border-top-style: {{ $ticket_separador_estilo }}"></div>
+                                    <div class="ticket-preview-divider" style="{{ $ticketPreviewDividerStyle }}"></div>
 
                                     <div class="ticket-preview-block" style="{{ ticketSectionStyleCss((object) ['styles' => $ticket_estilos], 'cliente') }}">
                                         <div class="ticket-preview-row ticket-preview-row-client">
@@ -314,7 +325,7 @@
                                         @endif
                                     </div>
 
-                                    <div class="ticket-preview-divider" style="border-top-style: {{ $ticket_separador_estilo }}"></div>
+                                    <div class="ticket-preview-divider" style="{{ $ticketPreviewDividerStyle }}"></div>
                                     <div class="ticket-preview-row" style="{{ ticketSectionStyleCss((object) ['styles' => $ticket_estilos], 'concepto') }}">
                                         <span>Concepto</span>
                                         <span>Pago del mes</span>
@@ -335,13 +346,13 @@
                                     @endif
 
                                     @if (!empty($ticket_mensaje_final))
-                                        <div class="ticket-preview-divider" style="border-top-style: {{ $ticket_separador_estilo }}"></div>
+                                        <div class="ticket-preview-divider" style="{{ $ticketPreviewDividerStyle }}"></div>
                                         <div class="text-center" style="{{ ticketSectionStyleCss((object) ['styles' => $ticket_estilos], 'pie') }}">
                                             <strong>{{ $ticket_mensaje_final }}</strong>
                                         </div>
                                     @endif
 
-                                    <div class="ticket-preview-divider" style="border-top-style: {{ $ticket_separador_estilo }}"></div>
+                                    <div class="ticket-preview-divider" style="{{ $ticketPreviewDividerStyle }}"></div>
                                     <div class="text-center text-muted small" style="{{ ticketSectionStyleCss((object) ['styles' => $ticket_estilos], 'pie') }}">
                                         {{ (int) $ticket_copias === 1 ? 'ORIGINAL' : 'COPIA CLIENTE' }}
                                         @if ($ticket_auto_imprimir)
@@ -708,19 +719,19 @@
         }
 
         .ticket-preview-divider {
-            border-top: 1px dashed #64748b;
+            border-top: 1px dashed #000000;
             margin: 10px 0;
         }
 
         .ticket-preview-cutline {
             margin-top: 12px;
             padding-top: 8px;
-            border-top: 2px dashed #94a3b8;
+            border-top: 2px dashed #000000;
             text-align: center;
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.12em;
-            color: #64748b;
+            color: #000000;
         }
 
         .ticket-preview-row {
@@ -769,7 +780,7 @@
                     'body{margin:0;padding:16px;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#0f172a;}' +
                     '.ticket-preview-paper{max-width:360px;margin:0 auto;padding:16px;background:#fff;border:1px solid #dbe4f0;border-radius:14px;font-size:12px;color:#0f172a;}' +
                     '.ticket-preview-company{text-align:center;}.ticket-preview-company span{display:block;margin-top:2px;}' +
-                    '.ticket-preview-divider{border-top:1px dashed #64748b;margin:10px 0;}' +
+                    '.ticket-preview-divider{border-top:1px dashed #000000;margin:10px 0;}' +
                     '.ticket-preview-row{display:flex;justify-content:space-between;gap:12px;margin-bottom:4px;}' +
                     '.ticket-preview-block{line-height:1.5;}' +
                     '@media print{body{padding:0;}.ticket-preview-paper{border:0;border-radius:0;box-shadow:none;max-width:none;}}' +

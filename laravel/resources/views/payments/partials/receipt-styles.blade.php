@@ -17,7 +17,7 @@
     }
 
     .receipt-copy + .receipt-copy {
-        border-top: 2px dashed #94a3b8;
+        border-top: 2px dashed #000000;
         position: relative;
         margin-top: 18px;
         padding-top: 24px;
@@ -33,7 +33,7 @@
         padding: 0 10px;
         font-size: 11px;
         font-weight: 700;
-        color: #64748b;
+        color: #000000;
         letter-spacing: 0.12em;
     }
 
@@ -88,7 +88,7 @@
     }
 
     .receipt-divider {
-        border-top: 1px {{ $dividerStyle }} #0f172a;
+        border-top: {{ $dividerWidth }} {{ $dividerStyle }} #000000;
         margin: 10px 0;
     }
 
@@ -129,18 +129,18 @@
         margin-top: 10px;
         font-size: 11px;
         font-weight: 700;
-        color: #475569;
+        color: #000000;
         letter-spacing: 0.08em;
     }
 
     .receipt-cutline {
         margin-top: 12px;
         padding-top: 8px;
-        border-top: 2px dashed #94a3b8;
+        border-top: 2px dashed #000000;
         text-align: center;
         font-size: 11px;
         font-weight: 700;
         letter-spacing: 0.12em;
-        color: #64748b;
+        color: #000000;
     }
 </style>

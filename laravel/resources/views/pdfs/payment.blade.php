@@ -15,6 +15,7 @@
     @php($receiptPaddingBottom = (int) $ticketConfig->ticket_margen_inferior_mm)
     @php($receiptPaddingLeft = (int) $ticketConfig->ticket_margen_izquierdo_mm)
     @php($dividerStyle = $ticketConfig->ticket_separador_estilo)
+    @php($dividerWidth = ticketDividerWidthCss($ticketConfig->ticket_separador_grosor ?? 'normal'))
     @php($ticketLogoSrc = dirname(base_path()).DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, logoEmpresaConfig()))
     <style>
         @page {

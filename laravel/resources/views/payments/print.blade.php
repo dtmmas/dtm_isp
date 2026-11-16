@@ -77,6 +77,7 @@
     @php($receiptPaddingBottom = (int) $ticketConfig->ticket_margen_inferior_mm)
     @php($receiptPaddingLeft = (int) $ticketConfig->ticket_margen_izquierdo_mm)
     @php($dividerStyle = $ticketConfig->ticket_separador_estilo)
+    @php($dividerWidth = ticketDividerWidthCss($ticketConfig->ticket_separador_grosor ?? 'normal'))
     @include('payments.partials.receipt-styles')
     <style>
         .receipt-page {

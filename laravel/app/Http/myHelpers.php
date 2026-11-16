@@ -326,6 +326,7 @@ function ticketPrintConfig()
       'ticket_margen_inferior_mm' => 4,
       'ticket_margen_izquierdo_mm' => 4,
       'ticket_separador_estilo' => 'dashed',
+      'ticket_separador_grosor' => 'normal',
       'ticket_mostrar_linea_corte' => true,
       'ticket_mostrar_logo' => true,
       'ticket_logo_ancho' => 80,
@@ -367,6 +368,7 @@ function ticketPrintConfig()
    $config['ticket_margen_inferior_mm'] = in_array((int) $config['ticket_margen_inferior_mm'], [2, 4, 6, 8], true) ? (int) $config['ticket_margen_inferior_mm'] : (int) $config['ticket_margen_interno_mm'];
    $config['ticket_margen_izquierdo_mm'] = in_array((int) $config['ticket_margen_izquierdo_mm'], [2, 4, 6, 8], true) ? (int) $config['ticket_margen_izquierdo_mm'] : (int) $config['ticket_margen_interno_mm'];
    $config['ticket_separador_estilo'] = in_array($config['ticket_separador_estilo'], ['dashed', 'solid', 'dotted'], true) ? $config['ticket_separador_estilo'] : 'dashed';
+   $config['ticket_separador_grosor'] = in_array($config['ticket_separador_grosor'], ['normal', 'medium', 'high', 'full'], true) ? $config['ticket_separador_grosor'] : 'normal';
    $config['ticket_mostrar_linea_corte'] = filter_var($config['ticket_mostrar_linea_corte'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? $config['ticket_mostrar_linea_corte'] === '1';
    $config['ticket_logo_ancho'] = max(40, min(180, (int) $config['ticket_logo_ancho']));
    $config['ticket_mostrar_logo'] = filter_var($config['ticket_mostrar_logo'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? $config['ticket_mostrar_logo'] === '1';
@@ -437,5 +439,20 @@ function ticketSectionStyleCss($ticketConfig, $section)
    return 'font-family: '.ticketSectionFontFamilyCss($style->familia)
       .'; font-size: '.$style->tamano.'px'
       .'; font-weight: '.ticketSectionFontWeightCss($style->peso).';';
+}
+
+function ticketDividerWidthCss($weight)
+{
+   switch ($weight) {
+      case 'medium':
+         return '2px';
+      case 'high':
+         return '3px';
+      case 'full':
+         return '4px';
+      case 'normal':
+      default:
+         return '1px';
+   }
 }
 ?>
