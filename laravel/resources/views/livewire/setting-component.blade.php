@@ -304,39 +304,39 @@
 
                                     <div class="ticket-preview-block" style="{{ ticketSectionStyleCss((object) ['styles' => $ticket_estilos], 'cliente') }}">
                                         <div class="ticket-preview-row ticket-preview-row-client">
-                                            <span><strong>Cliente</strong></span>
+                                            <span><strong>Cliente:</strong></span>
                                             <span class="ticket-preview-row-value">Juan Perez</span>
                                         </div>
                                         @if ($ticket_mostrar_dpi)
                                             <div class="ticket-preview-row ticket-preview-row-client">
-                                                <span><strong>DPI</strong></span>
+                                                <span><strong>DPI:</strong></span>
                                                 <span class="ticket-preview-row-value">1234 56789 0101</span>
                                             </div>
                                         @endif
                                         <div class="ticket-preview-row ticket-preview-row-client">
-                                            <span><strong>Plan</strong></span>
+                                            <span><strong>Plan:</strong></span>
                                             <span class="ticket-preview-row-value">Internet residencial 20MB</span>
                                         </div>
                                         @if ($ticket_mostrar_direccion_plan)
                                             <div class="ticket-preview-row ticket-preview-row-client">
-                                                <span><strong>Direccion</strong></span>
+                                                <span><strong>Direccion:</strong></span>
                                                 <span class="ticket-preview-row-value">Zona centro, sector ejemplo</span>
                                             </div>
                                         @endif
                                     </div>
 
                                     <div class="ticket-preview-divider" style="{{ $ticketPreviewDividerStyle }}"></div>
-                                    <div class="ticket-preview-row" style="{{ ticketSectionStyleCss((object) ['styles' => $ticket_estilos], 'concepto') }}">
-                                        <span>Concepto</span>
-                                        <span>Pago del mes</span>
+                                    <div class="ticket-preview-concept-pill" style="{{ ticketSectionStyleCss((object) ['styles' => $ticket_estilos], 'concepto') }}">
+                                        <span class="ticket-preview-concept-pill-label">Concepto:</span>
+                                        <span class="ticket-preview-row-value ticket-preview-row-value-strong">Pago del mes</span>
                                     </div>
                                     <div class="ticket-preview-row" style="{{ ticketSectionStyleCss((object) ['styles' => $ticket_estilos], 'concepto') }}">
-                                        <span>Forma de pago</span>
+                                        <span>Forma de pago:</span>
                                         <span>Efectivo</span>
                                     </div>
-                                    <div class="ticket-preview-row" style="{{ ticketSectionStyleCss((object) ['styles' => $ticket_estilos], 'concepto') }}">
-                                        <span>Monto</span>
-                                        <strong>Q 250.00</strong>
+                                    <div class="ticket-preview-total-pill" style="{{ ticketSectionStyleCss((object) ['styles' => $ticket_estilos], 'concepto') }}">
+                                        <span class="ticket-preview-total-pill-label">Monto:</span>
+                                        <strong class="ticket-preview-amount-value">Q 250.00</strong>
                                     </div>
 
                                     @if ($ticket_mostrar_observacion)
@@ -739,6 +739,61 @@
             justify-content: space-between;
             gap: 12px;
             margin-bottom: 4px;
+        }
+
+        .ticket-preview-row-concept,
+        .ticket-preview-row-amount {
+            margin-top: 6px;
+        }
+
+        .ticket-preview-concept-pill {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 8px;
+            padding: 7px 10px;
+            border: 1px solid #000000;
+            border-radius: 10px;
+            background: #f3f4f6;
+        }
+
+        .ticket-preview-concept-pill-label {
+            font-weight: 800;
+            color: #000000;
+            letter-spacing: 0.02em;
+        }
+
+        .ticket-preview-row-concept span,
+        .ticket-preview-row-amount span,
+        .ticket-preview-row-value-strong {
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .ticket-preview-amount-value {
+            font-size: 1.18em;
+            font-weight: 900;
+            color: #000000;
+            letter-spacing: 0.01em;
+        }
+
+        .ticket-preview-total-pill {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 8px;
+            padding: 7px 10px;
+            border: 1px solid #000000;
+            border-radius: 10px;
+            background: #f3f4f6;
+        }
+
+        .ticket-preview-total-pill-label {
+            font-weight: 800;
+            color: #000000;
+            letter-spacing: 0.02em;
         }
 
         .ticket-preview-row-client {

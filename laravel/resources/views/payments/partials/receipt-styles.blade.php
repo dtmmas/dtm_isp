@@ -107,6 +107,11 @@
         vertical-align: top;
     }
 
+    .receipt-concept-cell,
+    .receipt-total-cell {
+        padding-top: 6px !important;
+    }
+
     .receipt-kv-label {
         width: 34%;
     }
@@ -116,13 +121,61 @@
         word-break: break-word;
     }
 
+    .receipt-concept-pill {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 7px 10px;
+        border: 1px solid #000000;
+        border-radius: 10px;
+        background: #f3f4f6;
+    }
+
+    .receipt-concept-pill-label {
+        font-size: 12px;
+        font-weight: 800;
+        color: #000000;
+        letter-spacing: 0.02em;
+    }
+
+    .receipt-concept-value {
+        font-size: 13px;
+        font-weight: 700;
+        color: #000000;
+    }
+
     .receipt-block strong {
         font-weight: 700;
     }
 
-    .receipt-total {
-        font-size: 15px;
+    .receipt-total-row .receipt-kv-label,
+    .receipt-total-row .receipt-kv-value {
         font-weight: 800;
+    }
+
+    .receipt-total-pill {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 7px 10px;
+        border: 1px solid #000000;
+        border-radius: 10px;
+        background: #f3f4f6;
+    }
+
+    .receipt-total-pill-label {
+        font-size: 12px;
+        font-weight: 800;
+        color: #000000;
+        letter-spacing: 0.02em;
+    }
+
+    .receipt-total {
+        font-size: 17px;
+        font-weight: 900;
+        color: #000000;
     }
 
     .receipt-label {

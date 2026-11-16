@@ -118,13 +118,13 @@ class ThermalPrintController extends Controller
             $content .= $this->styledCenteredLine((string) $payment->created_at, $lineWidth, 'titulo', $ticketConfig);
             $content .= $this->divider($lineWidth);
 
-            $content .= $this->styledKeyValueLine('Cliente', $payment->name_client, $lineWidth, 'cliente', $ticketConfig);
+            $content .= $this->styledKeyValueLine('Cliente:', $payment->name_client, $lineWidth, 'cliente', $ticketConfig);
             if ($ticketConfig->ticket_mostrar_dpi && !empty(optional($payment->invoice->client_product->client->user)->dni)) {
-                $content .= $this->styledKeyValueLine('DPI', optional($payment->invoice->client_product->client->user)->dni, $lineWidth, 'cliente', $ticketConfig);
+                $content .= $this->styledKeyValueLine('DPI:', optional($payment->invoice->client_product->client->user)->dni, $lineWidth, 'cliente', $ticketConfig);
             }
-            $content .= $this->styledKeyValueLine('Plan', $payment->name_product, $lineWidth, 'cliente', $ticketConfig);
+            $content .= $this->styledKeyValueLine('Plan:', $payment->name_product, $lineWidth, 'cliente', $ticketConfig);
             if ($ticketConfig->ticket_mostrar_direccion_plan && !empty($payment->address_plan)) {
-                $content .= $this->styledKeyValueLine('Dir', $payment->address_plan, $lineWidth, 'cliente', $ticketConfig);
+                $content .= $this->styledKeyValueLine('Direccion:', $payment->address_plan, $lineWidth, 'cliente', $ticketConfig);
             }
             $content .= $this->divider($lineWidth);
 

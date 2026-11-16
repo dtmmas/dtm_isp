@@ -32,22 +32,22 @@
     <div class="receipt-block">
         <table class="receipt-kv" style="{{ $clienteStyle }}">
             <tr>
-                <td class="receipt-kv-label"><strong>Cliente</strong></td>
+                <td class="receipt-kv-label"><strong>Cliente:</strong></td>
                 <td class="receipt-kv-value">{{ $payment->name_client }}</td>
             </tr>
             @if ($ticketConfig->ticket_mostrar_dpi && optional($payment->invoice->client_product->client->user)->dni != '')
                 <tr>
-                    <td class="receipt-kv-label"><strong>DPI</strong></td>
+                    <td class="receipt-kv-label"><strong>DPI:</strong></td>
                     <td class="receipt-kv-value">{{ $payment->invoice->client_product->client->user->dni }}</td>
                 </tr>
             @endif
             <tr>
-                <td class="receipt-kv-label"><strong>Plan</strong></td>
+                <td class="receipt-kv-label"><strong>Plan:</strong></td>
                 <td class="receipt-kv-value">{{ $payment->name_product }}</td>
             </tr>
             @if ($ticketConfig->ticket_mostrar_direccion_plan && $payment->address_plan != '')
                 <tr>
-                    <td class="receipt-kv-label"><strong>Direccion</strong></td>
+                    <td class="receipt-kv-label"><strong>Direccion:</strong></td>
                     <td class="receipt-kv-value">{{ $payment->address_plan }}</td>
                 </tr>
             @endif
@@ -58,27 +58,35 @@
 
     <div class="receipt-block">
         <table class="receipt-kv" style="{{ $conceptoStyle }}">
-            <tr>
-                <td class="receipt-kv-label">Concepto</td>
-                <td class="receipt-kv-value">{{ ($payment->invoice->payments_advancement > 0) ? 'Pago adelantado' : 'Pago del mes de '.$mes }}</td>
+            <tr class="receipt-concept-row">
+                <td colspan="2" class="receipt-concept-cell">
+                    <div class="receipt-concept-pill">
+                        <span class="receipt-concept-pill-label">Concepto:</span>
+                        <span class="receipt-concept-value">{{ ($payment->invoice->payments_advancement > 0) ? 'Pago adelantado' : 'Pago del mes de '.$mes }}</span>
+                    </div>
+                </td>
             </tr>
             <tr>
-                <td class="receipt-kv-label">Forma de pago</td>
+                <td class="receipt-kv-label">Forma de pago:</td>
                 <td class="receipt-kv-value">{{ (($payment->method_payment == '1') ? 'Deposito' : (($payment->method_payment == '3') ? 'Efectivo' : 'Tarjeta')) }}</td>
             </tr>
-            <tr>
-                <td class="receipt-kv-label"><strong>Monto</strong></td>
-                <td class="receipt-kv-value receipt-total">{{ $payment->price_formatted }}</td>
+            <tr class="receipt-total-row">
+                <td colspan="2" class="receipt-total-cell">
+                    <div class="receipt-total-pill">
+                        <span class="receipt-total-pill-label">Monto:</span>
+                        <span class="receipt-total">{{ $payment->price_formatted }}</span>
+                    </div>
+                </td>
             </tr>
             @if ($payment->no_voucher != '')
                 <tr>
-                    <td class="receipt-kv-label">Transferencia No.</td>
+                    <td class="receipt-kv-label">Transferencia No:</td>
                     <td class="receipt-kv-value">{{ $payment->no_voucher }}</td>
                 </tr>
             @endif
             @if ($payment->reportado_por != '')
                 <tr>
-                    <td class="receipt-kv-label">Reportado por</td>
+                    <td class="receipt-kv-label">Reportado por:</td>
                     <td class="receipt-kv-value">{{ $payment->reportado_por }}</td>
                 </tr>
             @endif
